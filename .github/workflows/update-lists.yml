@@ -1,0 +1,57 @@
+name: Update lists (main)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - "scripts/**"
+      - "source/**"
+
+concurrency:
+  group: update-lists
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Обновить динамические списки
+        run: bash scripts/update-lists.sh
+
+      - name: Валидация списков и конфигов
+        run: bash scripts/validate-lists.sh
+
+      - name: Коммит изменений (только при изменении правил)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Сравниваем только содержательные строки правил, без заголовков/комментариев,
+          # чтобы ежедневное обновление дат в заголовках не создавало коммит.
+          rm -rf /tmp/old /tmp/new && mkdir -p /tmp/old /tmp/new
+          for f in rules/*.list; do
+            name="$(basename "$f")"
+            git show "HEAD:${f}" 2>/dev/null | grep -vE '^[[:space:]]*(#|$)' | sed -E 's/[[:space:]]+$//' > "/tmp/old/${name}" || true
+            grep -vE '^[[:space:]]*(#|$)' "$f" | sed -E 's/[[:space:]]+$//' > "/tmp/new/${name}" || true
+          done
+
+          if diff -rq /tmp/old /tmp/new >/dev/null 2>&1; then
+            echo "Правила не изменились — коммит не требуется"
+            exit 0
+          fi
+
+          git add -A rules
+          git commit -m "Auto: обновление списков main [skip ci]"
+          git pull --rebase origin main
+          git push origin HEAD:main
