@@ -1,6 +1,6 @@
 # NAME: domains_banking.list
 # REPO: https://github.com/yuriichv/shadowrocket-configuration-file
-# UPDATED: 2026-10-27 09:08:19 MSK
+# UPDATED: 2026-10-28 09:46:21 MSK
 # SOURCE: https://www.cbr.ru/banking_sector/credit/cowebsites/
 # TOTAL: 1048
 DOMAIN-SUFFIX,1.psbank.ru
