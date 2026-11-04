@@ -1,6 +1,6 @@
 # NAME: domain_antifilter.list
 # REPO: https://github.com/yuriichv/shadowrocket-configuration-file
-# UPDATED: 2026-11-03 10:46:49 MSK
+# UPDATED: 2026-11-04 10:25:27 MSK
 # SOURCE: https://community.antifilter.download/list/domains.lst
 # Количество доменов: 485
 DOMAIN-SUFFIX,10minutemail.com
